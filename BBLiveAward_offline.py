@@ -187,66 +187,6 @@ def multi_thread_snatch(session, task, cookie, csrf):
             else:
                 break
         concurrent.futures.wait(futures)
-def fetch_and_select_task(json_url: str):
-    """
-    读取远程 JSON 并让用户在命令行选择任务
-    :param json_url: 远程 task.json 的网络地址
-    :return: 选中的 task_id (字符串)
-    """
-
-    print("正在获取远程任务列表...")
-    
-    try:
-        # 1. 请求远程 JSON 数据
-        response = requests.get(json_url, timeout=10)
-        response.raise_for_status()
-        task_data = response.json()
-    except Exception as e:
-        print(f"获取任务 JSON 失败: {e}")
-        return None
-
-    all_tasks = []
-    
-    print("\n==============================")
-    print("       请选择要执行的任务       ")
-    print("==============================")
-    
-    if "everyday_task" in task_data and task_data["everyday_task"]:
-        print("\n[ 每日任务 ]")
-        for task in task_data["everyday_task"]:
-            all_tasks.append(task)
-            print(f"  {len(all_tasks)}. {task['task_name']}")
-            
-    if "seasonal_task" in task_data and task_data["seasonal_task"]:
-        print("\n[ 版本任务 ]")
-        for task in task_data["seasonal_task"]:
-            all_tasks.append(task)
-            print(f"  {len(all_tasks)}. {task['task_name']}")
-            
-    print("\n==============================")
-
-
-    while True:
-        try:
-            user_input = input(f"请输入任务编号 (1-{len(all_tasks)}): ").strip()
-            
-            # 将用户输入的字符转换为索引 (序号减 1)
-            choice_idx = int(user_input) - 1
-            
-            if 0 <= choice_idx < len(all_tasks):
-                selected_task = all_tasks[choice_idx]
-                print(f"任务名称: {selected_task['task_name']}")
-                print(f"任务 ID : {selected_task['task_id']}\n")
-            
-                return selected_task['task_id']
-            else:
-                print(f"编号超出范围，请输入 1 到 {len(all_tasks)} 之间的数字。")
-                
-        except ValueError:
-            print("输入格式错误，请只输入数字！")
-        except KeyboardInterrupt:
-            print("\n用户取消了选择。")
-            return None
 
 def main():
     session = requests.Session()
