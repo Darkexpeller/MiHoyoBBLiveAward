@@ -1,7 +1,7 @@
 web/
 dist/
 build/
-_pycache_/
+__pycache__/
 1.json
 1.txt
 build.bash
