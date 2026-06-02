@@ -1,0 +1,35 @@
+{
+  "everyday_task": [
+    {
+      "task_id": "6ERAcwloghvbqn00",
+      "task_name": "当日直播间至少1名用户观看时长≥10分钟"
+    },
+    {
+      "task_id": "6ERAcwloghvvpx00",
+      "task_name": "当日开播60分钟"
+    },
+    {
+      "task_id": "6ERAcwloghvbzo00",
+      "task_name": "当日直播间收到电池≥2"
+    },
+    {
+      "task_id": "6ERAcwloghvvyd00",
+      "task_name": "当日直播间弹幕≥10条"
+    }
+  ],
+  "seasonal_task":[
+    {
+        "task_id": "18ERA2wloghvarl00",
+        "task_name": "直播里程碑任务x3天"
+    },
+    {
+        "task_id": "18ERA2wloghvtje00",
+        "task_name": "直播里程碑任务x5天"
+    },
+    {
+        "task_id": "18ERA2wloghvtcg00",
+        "task_name": "直播里程碑任务x10天"
+    }
+  ]
+
+}

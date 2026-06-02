@@ -1,0 +1,15 @@
+web/
+dist/
+build/
+_pycache_/
+1.json
+1.txt
+build.bash
+taskinfo.json
+test.py
+zzz_big.py
+zzz.py
+*.spec
+*.txt
+update_core.py
+update.json

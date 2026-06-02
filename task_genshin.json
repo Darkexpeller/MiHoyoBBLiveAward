@@ -1,0 +1,35 @@
+{
+  "everyday_task": [
+    {
+      "task_id": "6ERAcwloghvb2a00",
+      "task_name": "[原神6.6]当日直播间至少1名用户观看时长≥10分钟"
+    },
+    {
+      "task_id": "6ERAcwloghvb1w00",
+      "task_name": "[原神6.6]当日开播60分钟"
+    },
+    {
+      "task_id": "6ERAcwloghvvrg00",
+      "task_name": "[原神6.6]当日直播间送“牛蛙牛蛙2人"
+    },
+    {
+      "task_id": "6ERAcwloghvvfb00",
+      "task_name": "[原神6.6]当日直播间弹幕≥6条"
+    }
+  ],
+  "seasonal_task":[
+    {
+        "task_id": "18ERA2wloghvp4p00",
+        "task_name": "[原神6.6]直播里程碑任务x3天"
+    },
+    {
+        "task_id": "18ERA2wloghvawa00",
+        "task_name": "[原神6.6]直播里程碑任务x5天"
+    },
+    {
+        "task_id": "18ERA2wloghvpm600",
+        "task_name": "[原神6.6]直播里程碑任务x10天"
+    }
+  ]
+
+}
