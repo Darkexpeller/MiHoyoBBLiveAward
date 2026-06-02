@@ -3,15 +3,11 @@ from dataclasses import dataclass
 import requests
 from functools import reduce
 from hashlib import md5
-import urllib.parse
 import time
 from datetime import datetime, timedelta
 import concurrent.futures
 import threading
-import os
-import sys
-import subprocess
-import updater_core
+
 
 
 
@@ -253,11 +249,9 @@ def fetch_and_select_task(json_url: str):
             return None
 
 def main():
-    updater_core.check_and_do_update()
     session = requests.Session()
     cookie = input("请输入用户cookie:")
     selected_task_id=input("请输入:task_id")
-    
     match = re.search(r'bili_jct=([^;]+)', cookie)
     if match:
         csrf = match.group(1).strip()

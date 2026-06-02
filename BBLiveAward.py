@@ -3,14 +3,10 @@ from dataclasses import dataclass
 import requests
 from functools import reduce
 from hashlib import md5
-import urllib.parse
 import time
 from datetime import datetime, timedelta
 import concurrent.futures
 import threading
-import os
-import sys
-import subprocess
 import updater_core
 
 
@@ -234,7 +230,6 @@ def fetch_and_select_task(json_url: str):
         try:
             user_input = input(f"请输入任务编号 (1-{len(all_tasks)}): ").strip()
             
-            # 将用户输入的字符转换为索引 (序号减 1)
             choice_idx = int(user_input) - 1
             
             if 0 <= choice_idx < len(all_tasks):
