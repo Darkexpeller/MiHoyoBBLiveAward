@@ -6,7 +6,7 @@ import configparser
 import subprocess
 
 VERSION_CHECK_URL = "https://philia093.online/BBLiveAward/update.json"
-CURRENT_VERSION = "1.0.1"
+CURRENT_VERSION = "1.0.4"
 
 def get_real_dir():
     """获取当前程序运行的真实目录"""

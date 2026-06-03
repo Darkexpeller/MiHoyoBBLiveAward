@@ -4,7 +4,7 @@ build/
 __pycache__/
 1.json
 1.txt
-build.bash
+build.bat
 taskinfo.json
 test.py
 zzz_big.py

@@ -124,7 +124,8 @@ def wait_until_target_time(target_hour=1, target_minute=0):
         time.sleep(sleep_seconds)
 
 def single_snatch_worker(thread_id, session, task, cookie, csrf):
-    print(f"Thread-{thread_id} start")
+    if(thread_id!=-1):
+        print(f"Thread-{thread_id} start")
     global snatch_success
     global snatch_end
     if snatch_success:
@@ -140,10 +141,9 @@ def single_snatch_worker(thread_id, session, task, cookie, csrf):
         else:
             print("snatch_end=true 提前终止")
             return 
-        print(f"[Thread-{thread_id} {datetime.now().strftime('%H:%M:%S.%f')[:-3]}] 返回: {ret}")
+        #print(f"[Thread-{thread_id} {datetime.now().strftime('%H:%M:%S.%f')[:-3]}] 返回: {ret}")
         with lock:
             if not snatch_end:
-                
                 code=ret.get("code")
                 if code == 0:
                     print(f"领取成功")
@@ -164,6 +164,7 @@ def single_snatch_worker(thread_id, session, task, cookie, csrf):
                 elif code==202120:
                     print(f"未到每日领取时间")
                     
+        return ret
     except Exception as e:
         print(f"err:{e}")
         pass 
@@ -187,6 +188,10 @@ def multi_thread_snatch(session, task, cookie, csrf):
             else:
                 break
         concurrent.futures.wait(futures)
+        if(snatch_success):
+            print("[success]直播激励领取成功，请在私信查收相关信息")
+        else:
+            print("[fail]领取失败，请查看相关输出日志")
 def fetch_and_select_task(json_url: str):
     """
     读取远程 JSON 并让用户在命令行选择任务
@@ -197,7 +202,6 @@ def fetch_and_select_task(json_url: str):
     print("正在获取远程任务列表...")
     
     try:
-        # 1. 请求远程 JSON 数据
         response = requests.get(json_url, timeout=10)
         response.raise_for_status()
         task_data = response.json()
@@ -246,7 +250,17 @@ def fetch_and_select_task(json_url: str):
         except KeyboardInterrupt:
             print("\n用户取消了选择。")
             return None
-
+def testcookie(session: requests.Session, task:BiliTask, cookie:str, csrf:str):
+    ret = single_snatch_worker(-1,session, task, cookie, csrf)
+    if(ret):
+        if ret['code']==-101:
+            print("[Fail] 请检查账号cookie是否正确!!!")
+            return False
+        else:
+            print("[Success] Cookie有效,开始领取")
+            return True
+    else:
+        print("[Fail] 检测cookie请求错误!!! 请检查账号cookie是否正确或者网络是否流畅")
 def main():
     updater_core.check_and_do_update()
     session = requests.Session()
@@ -254,14 +268,12 @@ def main():
     REMOTE_Genshin_JSON_URL = "https://philia093.online/BBLiveAward/task_genshin.json"
     game_id=input("请输入数字以选择游戏1.原神/2.绝区零:")
     cookie = input("请输入用户cookie:")
+
     selected_task_id=""
-    print(game_id)
     if game_id=="1":
         selected_task_id = fetch_and_select_task(REMOTE_Genshin_JSON_URL)
-        print(selected_task_id)
     elif game_id=="2":
         selected_task_id = fetch_and_select_task(REMOTE_ZZZ_JSON_URL)
-        print(selected_task_id)
     
     match = re.search(r'bili_jct=([^;]+)', cookie)
     if match:
@@ -269,22 +281,34 @@ def main():
     else:
         print("提取 CSRF 失败")
         return
+    
     TaskInfo = get_task_info(session, selected_task_id, cookie)
     task = BiliTask.from_response_dict(selected_task_id, TaskInfo)
-    print(task)
+    #print(TaskInfo)
+    print(f"任务信息：{task}")
+    #直接领取一次判断cookie是否有效
+    IsCookieValid=testcookie(session, task, cookie, csrf)
+    if not IsCookieValid:
+        input("无法验证cookie有效性,请按任意键退出")
+        return
     if task.status == 6:
         print(f"[{task.task_name}] 奖励今天已经领取过了")
+        input("按任意键退出")
         return
     if task.status == 2:
         print(f"[{task.task_name}] 每日库存已达上限")
-        return
+        isTo=input("是否定时领取明天的奖励(y/n):")
+        if isTo=='n':
+            return
     if task.status==0:
-        print("当前可以领取")
         print(f"[*] 任务就绪: {task.task_name} | 奖品: {task.reward_name}")
+        print("当前可以领取")
         multi_thread_snatch(session, task, cookie, csrf)
         input("按任意键退出")
-        return
+        return 
         
+    
+    
     print(f"[*] 任务就绪: {task.task_name} | 奖品: {task.reward_name}")
     
     wait_until_target_time(target_hour=1, target_minute=0)
