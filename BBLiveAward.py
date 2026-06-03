@@ -8,8 +8,7 @@ from datetime import datetime, timedelta
 import concurrent.futures
 import threading
 import updater_core
-
-
+import os
 
 mixinKeyEncTab = [
     46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 27, 43, 5, 49,
@@ -255,6 +254,39 @@ def fetch_and_select_task(json_url: str):
         except KeyboardInterrupt:
             print("\n用户取消了选择。")
             return None
+def get_or_create_cookie(file_name="cookie.txt"):
+    import sys
+    if getattr(sys, 'frozen', False):
+        base_dir = os.path.dirname(sys.executable)
+    else:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        
+    file_path = os.path.join(base_dir, file_name)
+    cookie_str = ""
+    if os.path.exists(file_path):
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                cookie_str = f.read().strip()
+        except Exception as e:
+            print(f"本地 Cookie 不存在: {e}")
+
+    if not cookie_str:
+        
+        cookie_str = input("请输入用户 Cookie: ").strip()
+        if not cookie_str:
+            print("错误: Cookie 不能为空，程序即将退出。")
+            sys.exit(1)
+        try:
+            with open(file_path, "w", encoding="utf-8") as f:
+                f.write(cookie_str)
+            print(f"\nCookie 已成功保存至: {file_name}")
+        except Exception as e:
+            print(f"\n保存 Cookie 到本地失败，请检查目录权限: {e}")
+            
+    else:
+        print(f"成功从本地 {file_name} 加载历史 Cookie。")
+
+    return cookie_str
 def testcookie(session: requests.Session, task:BiliTask, cookie:str, csrf:str):
     ret = single_snatch_worker(-1,session, task, cookie, csrf)
     if(ret):
@@ -272,7 +304,7 @@ def main():
     REMOTE_ZZZ_JSON_URL = "https://philia093.online/BBLiveAward/task_zzz.json"
     REMOTE_Genshin_JSON_URL = "https://philia093.online/BBLiveAward/task_genshin.json"
     game_id=input("请输入数字以选择游戏1.原神/2.绝区零:")
-    cookie = input("请输入用户cookie:")
+    cookie = get_or_create_cookie()
 
     selected_task_id=""
     if game_id=="1":
