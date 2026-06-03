@@ -1,12 +1,9 @@
 import os
 import sys
-import time
 import requests
-import configparser
 import subprocess
-
 VERSION_CHECK_URL = "https://philia093.online/BBLiveAward/update.json"
-CURRENT_VERSION = "1.0.4"
+CURRENT_VERSION = "1.0.7"
 
 def get_real_dir():
     """获取当前程序运行的真实目录"""
@@ -37,16 +34,29 @@ del "%~f0"
     print("准备重启并应用新版本...")
     subprocess.Popen([bat_path], creationflags=subprocess.CREATE_NEW_CONSOLE)
     sys.exit(0) 
-
+def download_with_progress(url: str, output_path: str):
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Connection": "keep-alive"
+    }
+    with requests.Session() as session:
+        with session.get(url, stream=True, headers=headers, timeout=60.0) as r:
+            r.raise_for_status()
+            with open(output_path, 'wb') as f:
+                for chunk in r.iter_content(chunk_size=1048576):
+                    if chunk:
+                        f.write(chunk)
+                        
+            print("下载完成...")
 def check_and_do_update():
     print(f"[*] 当前本地软件版本: {CURRENT_VERSION}")
     
     if not sys.executable.endswith(".exe") or "python" in sys.executable.lower():
         print("已跳过更新。")
         return True
-
     try:
-        # 2. 拉取远程版本信息
+        #拉取远程版本信息
         print("[*] 正在检查远程服务器更新...")
         response = requests.get(VERSION_CHECK_URL, timeout=5)
         response.raise_for_status()
@@ -55,24 +65,14 @@ def check_and_do_update():
         remote_ver = remote_data.get("latest_version")
         download_url = remote_data.get("download_url")
         
-        # 3. 极简对比逻辑
         if remote_ver != CURRENT_VERSION:
             print(f"🎉 发现新版本 {remote_ver}！准备下载...")
             
             temp_new_exe = os.path.join(get_real_dir(), "app_new.exe_tmp")
             
-            # 4. 流式下载新版文件
             print("[*] 正在下载新版本文件，请稍候...")
-            with requests.get(download_url, stream=True, timeout=30) as r:
-                r.raise_for_status()
-                with open(temp_new_exe, 'wb') as f:
-                    for chunk in r.iter_content(chunk_size=8192):
-                        if chunk:
-                            f.write(chunk)
-                            
-            print("新版本文件下载完成。")
+            download_with_progress(download_url,temp_new_exe)
             
-            # 5. 直接呼叫 bat 进行自杀替换
             execute_bat_and_exit(temp_new_exe)
             
         else:

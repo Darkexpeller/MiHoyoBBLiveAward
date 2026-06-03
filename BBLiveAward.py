@@ -163,7 +163,12 @@ def single_snatch_worker(thread_id, session, task, cookie, csrf):
                     print("请求过于频繁，请稍后再试")
                 elif code==202120:
                     print(f"未到每日领取时间")
-                    
+                elif code==75255:
+                    print(f"每日库存已经使用完")
+                    snatch_end=True
+                else:
+                    print(f"未知code：{ret}")
+        
         return ret
     except Exception as e:
         print(f"err:{e}")
