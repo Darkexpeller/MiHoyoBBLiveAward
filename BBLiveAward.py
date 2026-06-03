@@ -9,7 +9,7 @@ import concurrent.futures
 import threading
 import updater_core
 import os
-
+import sys
 mixinKeyEncTab = [
     46, 47, 18, 2, 53, 8, 23, 32, 15, 50, 10, 31, 58, 3, 45, 35, 27, 43, 5, 49,
     33, 9, 42, 19, 29, 28, 14, 39, 12, 38, 41, 13, 37, 48, 7, 16, 24, 55, 40,
@@ -255,7 +255,7 @@ def fetch_and_select_task(json_url: str):
             print("\n用户取消了选择。")
             return None
 def get_or_create_cookie(file_name="cookie.txt"):
-    import sys
+    
     if getattr(sys, 'frozen', False):
         base_dir = os.path.dirname(sys.executable)
     else:
@@ -299,6 +299,10 @@ def testcookie(session: requests.Session, task:BiliTask, cookie:str, csrf:str):
     else:
         print("[Fail] 检测cookie请求错误!!! 请检查账号cookie是否正确或者网络是否流畅")
 def main():
+    if getattr(sys, 'frozen', False):
+        base_dir = os.path.dirname(sys.executable)
+    else:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
     updater_core.check_and_do_update()
     session = requests.Session()
     REMOTE_ZZZ_JSON_URL = "https://philia093.online/BBLiveAward/task_zzz.json"
@@ -316,6 +320,7 @@ def main():
     if match:
         csrf = match.group(1).strip()
     else:
+        os.remove(base_dir+"/cookie.txt")
         print("提取 CSRF 失败")
         return
     
@@ -326,6 +331,9 @@ def main():
     #直接领取一次判断cookie是否有效
     IsCookieValid=testcookie(session, task, cookie, csrf)
     if not IsCookieValid:
+        
+        
+        os.remove(base_dir+"/cookie.txt")
         input("无法验证cookie有效性,请按任意键退出")
         return
     if task.status == 6:
